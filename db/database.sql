@@ -95,3 +95,29 @@ INSERT INTO citas (id_paciente, id_medico, fecha_cita, hora_cita, motivo, estado
 (3, 4, DATE_ADD(CURDATE(), INTERVAL 2 DAY), '15:00:00', 'Dolor en el pecho', 'Pendiente'),
 (4, 3, DATE_SUB(CURDATE(), INTERVAL 3 DAY), '11:00:00', 'Ecografía de control', 'Atendido'),
 (5, 5, CURDATE(), '16:00:00', 'Alergía cutánea', 'Pendiente');
+
+CREATE TABLE consultorios (
+    id_consultorio INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    piso VARCHAR(20),
+    ubicacion VARCHAR(100),
+    capacidad INT DEFAULT 1,
+    estado TINYINT(1) DEFAULT 1
+);
+
+INSERT INTO consultorios
+(nombre,piso,ubicacion,capacidad,estado)
+VALUES
+('Consultorio 101','1','Primer Piso',2,1),
+('Consultorio 102','1','Primer Piso',2,1),
+('Consultorio 201','2','Segundo Piso',3,1),
+('Consultorio 202','2','Segundo Piso',2,1),
+('Consultorio Pediatria','3','Tercer Piso',4,1);
+
+ALTER TABLE citas
+ADD COLUMN id_consultorio INT NULL;
+
+ALTER TABLE citas
+ADD CONSTRAINT fk_cita_consultorio
+FOREIGN KEY(id_consultorio)
+REFERENCES consultorios(id_consultorio);

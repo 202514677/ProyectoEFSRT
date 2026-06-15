@@ -48,12 +48,45 @@ include 'includes/header.php'; include 'includes/sidebar.php';
                     <td><?= $u['id_usuario']; ?></td><td><strong><?= htmlspecialchars($u['username']); ?></strong></td><td><?= htmlspecialchars($u['nombre']); ?></td><td><?= $u['rol']; ?></td>
                     <td><?= $u['estado'] == 1 ? '<span style="color:green; font-weight:bold;">Activo</span>' : '<span style="color:red; font-weight:bold;">Inactivo</span>'; ?></td>
                     <td>
-                        <?php if($u['estado'] == 1): ?>
-                            <a href="usuarios.php?cambiar_estado=0&id=<?= $u['id_usuario']; ?>" class="btn-delete" style="color:#e67e22; font-weight:bold; margin-right:10px;">[ Dar de Baja ]</a>
-                        <?php else: ?>
-                            <a href="usuarios.php?cambiar_estado=1&id=<?= $u['id_usuario']; ?>" style="color:#2bc155; font-weight:bold; margin-right:10px;">[ Activar ]</a>
-                        <?php endif; ?>
-                    </td>
+
+			<a
+			href="editar_usuario.php?id=<?= $u['id_usuario']; ?>"
+			style="color:#3498db;
+			font-weight:bold;
+			margin-right:10px;">
+
+			[ Editar ]
+
+			</a>
+
+			<?php if($u['estado'] == 1): ?>
+
+				<a
+				href="usuarios.php?cambiar_estado=0&id=<?= $u['id_usuario']; ?>"
+				class="btn-delete"
+				style="color:#e67e22;
+				font-weight:bold;
+				margin-right:10px;">
+
+				[ Dar de Baja ]
+
+				</a>
+
+			<?php else: ?>
+
+				<a
+				href="usuarios.php?cambiar_estado=1&id=<?= $u['id_usuario']; ?>"
+				style="color:#2bc155;
+				font-weight:bold;
+				margin-right:10px;">
+
+				[ Activar ]
+
+				</a>
+
+    <?php endif; ?>
+
+</td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
