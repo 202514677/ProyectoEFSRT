@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         
 		if ($user && md5($password) === $user['password']) {
+			session_regenerate_id(true);
 			$_SESSION['usuario_id'] = $user['id_usuario'];
 			$_SESSION['usuario_nom'] = $user['nombre'];
 			$_SESSION['usuario_rol'] = $user['rol'];

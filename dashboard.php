@@ -1,5 +1,13 @@
 <?php
 require_once 'config/conexion.php';
+
+if (!isset($_SESSION['usuario_id'])) {
+
+    header("Location: index.php");
+    exit;
+
+}
+
 include 'includes/header.php';
 include 'includes/sidebar.php';
 

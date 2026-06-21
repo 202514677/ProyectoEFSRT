@@ -19,12 +19,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registrar_cita'])) {
 
 
     if ($hora < "08:00:00" || $hora > "18:00:00") {
-        $mensaje_alerta = "La clínica está cerrada. Horario laboral: 08:00 AM a 06:00 PM."; $tipo_alerta = "error";
-    } else if ($pdo->query("SELECT COUNT(*) FROM citas WHERE id_paciente = $id_paciente AND fecha_cita = '$fecha' AND estado != 'Cancelado'") -> fetchColumn() > 0) {
-        $mensaje_alerta = "El paciente ya cuenta con una cita agendada para esta misma fecha."; $tipo_alerta = "error";
-    } else if ($pdo->query("SELECT COUNT(*) FROM citas WHERE id_medico = $id_medico AND fecha_cita = '$fecha' AND hora_cita = '$hora' AND estado != 'Cancelado'") -> fetchColumn() > 0) {
-        $mensaje_alerta = "El médico ya se encuentra ocupado en esa hora y fecha seleccionada."; $tipo_alerta = "error";
+
+    $mensaje_alerta = "La clínica está cerrada. Horario laboral: 08:00 AM a 06:00 PM.";
+    $tipo_alerta = "error";
+
+} else {
+
+    $stmtPaciente = $pdo->prepare(
+        "SELECT COUNT(*)
+         FROM citas
+         WHERE id_paciente = ?
+         AND fecha_cita = ?
+         AND estado != 'Cancelado'"
+    );
+
+    $stmtPaciente->execute([
+        $id_paciente,
+        $fecha
+    ]);
+
+    if ($stmtPaciente->fetchColumn() > 0) {
+
+        $mensaje_alerta = "El paciente ya cuenta con una cita agendada para esta misma fecha.";
+        $tipo_alerta = "error";
+
     } else {
+
+        $stmtMedico = $pdo->prepare(
+            "SELECT COUNT(*)
+             FROM citas
+             WHERE id_medico = ?
+             AND fecha_cita = ?
+             AND hora_cita = ?
+             AND estado != 'Cancelado'"
+        );
+
+        $stmtMedico->execute([
+            $id_medico,
+            $fecha,
+            $hora
+        ]);
+
+        if ($stmtMedico->fetchColumn() > 0) {
+
+            $mensaje_alerta = "El médico ya se encuentra ocupado en esa hora y fecha seleccionada.";
+            $tipo_alerta = "error";
+
+        } else {
         $stmt = $pdo->prepare("
 		INSERT INTO citas
 		(
@@ -62,7 +103,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registrar_cita'])) {
     }
 }
 
-$fecha_filtro = $_GET['fecha_filtro'] ?? ''; $rango = $_GET['rango'] ?? '';
+}
+}
+
+
+$fecha_filtro = $_GET['fecha_filtro'] ?? '';
+$rango = $_GET['rango'] ?? '';
+
+$params = [];
 $sql = "
 
 SELECT
@@ -97,13 +145,23 @@ ON c.id_consultorio = co.id_consultorio
 WHERE 1=1
 
 ";
-if (!empty($fecha_filtro)) { $sql .= " AND c.fecha_cita = '$fecha_filtro'"; } 
+if (!empty($fecha_filtro)) {
+
+    $sql .= " AND c.fecha_cita = ?";
+
+    $params[] = $fecha_filtro;
+
+}
 else if (!empty($rango)) {
     if ($rango === 'dia') $sql .= " AND c.fecha_cita = CURDATE()";
     if ($rango === 'semana') $sql .= " AND YEARWEEK(c.fecha_cita, 1) = YEARWEEK(CURDATE(), 1)";
     if ($rango === 'mes') $sql .= " AND MONTH(c.fecha_cita) = MONTH(CURDATE()) AND YEAR(c.fecha_cita) = YEAR(CURDATE())";
 }
-$citas = $pdo->query($sql)->fetchAll();
+$stmt = $pdo->prepare($sql);
+
+$stmt->execute($params);
+
+$citas = $stmt->fetchAll();
 
 include 'includes/header.php'; include 'includes/sidebar.php';
 ?>

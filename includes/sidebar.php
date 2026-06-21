@@ -19,6 +19,10 @@
     </li>
 
     <li><a href="citas.php">Citas Médicas</a></li>
+	
+	<li><a href="reportes_pacientes.php">Reporte Pacientes</a></li>
+
+	<li><a href="reportes_citas.php">Reporte Citas</a></li>
 
     <?php if ($_SESSION['usuario_rol'] === 'Administrador'): ?>
 
